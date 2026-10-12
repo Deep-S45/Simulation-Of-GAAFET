@@ -1,0 +1,178 @@
+ # 3D Cylindrical nTFET  
+  
+go atlas  
+  
+set L=0.020  
+set D=0.010  
+set tox=0.002  
+#set LGS=0.002  
+set extss=0.020  
+#set LGD=0.007  
+set extdd=0.020  
+set elocs=0.002  
+set elocd=0.002  
+  
+  
+  
+mesh THREE.D CYLINDRICAL   
+  
+# Radius direction  
+  
+r.mesh location=0 spacing=0.05  
+r.mesh location=$D/2 spacing=0.05  
+r.mesh location=$D/2+$tox spacing=0.05  
+r.mesh location=$D/2+$tox+0.002 spacing=0.05  
+  
+# angle direction  
+  
+a.mesh location=0 spacing=30  
+a.mesh location=360 spacing=30  
+  
+  
+# z direction  
+  
+z.mesh location=-$L/2-$extss-$elocs spacing=0.0005  
+z.mesh location=-$L/2-$extss spacing=0.005  
+#z.mesh location=-$L/2-$LGS spacing=0.005  
+z.mesh location=-$L/2 spacing=0.005  
+z.mesh location=0 spacing=0.005  
+z.mesh location=$L/6 spacing=0.005  
+z.mesh location=$L/2 spacing=0.005  
+z.mesh location=$L/2 spacing=0.005  
+z.mesh location=$L/2+$extdd spacing=0.005  
+z.mesh location=$L/2+$extdd+$elocd spacing=0.005  
+  
+#Channel  
+region num=1 material=silicon z.min=-$L/2 z.max=0 r.min=0 r.max=$D/2  a.min=0 a.max=360.0   
+region num=7 material=silicon z.min=0 z.max=$L/2 r.min=0 r.max=$D/2  a.min=0 a.max=360.0   
+  
+  
+#Oxide   
+region num=2 material=sio2 z.min=-$L/2-$extss z.max=$L/2+$extdd r.min=$D/2 r.max=$D/2+$tox a.min=0 a.max=360.0  
+#region num=7 material=sio2 z.min=0 z.max=$L/2+$LGD+$extdd r.min=$D/2 r.max=$D/2+$tox a.min=0 a.max=360.0  
+  
+  
+  
+#Gate to Drain  space LGD  
+region num=3  material= silicon   z.min=$L/2 z.max=$L/2 r.min=0  r.max=$D/2 a.min=0 a.max=360.0  
+  
+#Drain  
+region num=4  material= silicon   z.min=$L/2 z.max=$L/2+$extdd r.min=0  r.max=$D/2 a.min=0 a.max=360.0  
+  
+  
+  
+#Gate to Source  space LGS  
+  
+region num=5  material=silicon  z.min=-$L/2 z.max=-$L/2 r.min=0 r.max=$D/2 a.min=0 a.max=360.0  
+  
+#Source   
+  
+region num=6  material=silicon  z.min=-$L/2-$extss z.max=-$L/2 r.min=0 r.max=$D/2 a.min=0 a.max=360.0  
+  
+  
+#Electrode  
+  
+elect name=gate z.min=-$L/2 z.max=$L/2 r.min=$D/2+$tox r.max=$D/2+$tox+0.002 a.min=0 a.max=360.0  
+#elect name=gate2 z.min=0 z.max=$L/2 r.min=$D/2+$tox r.max=$D/2+$tox+0.002 a.min=0 a.max=360.0  
+elect name=source z.min=-$L/2-$extss-$elocs z.max=-$L/2-$extss r.min=0 r.max=$D/2 a.min=0 a.max=360.0   
+elect name=drain z.min=$L/2+$extdd z.max=$L/2+$extdd+$elocd r.min=0  r.max=$D/2 a.min=0 a.max=360.0   
+#elect name=metal z.min=-$L/2-$x z.max=-$L/2 r.min=$D/2+$y r.max=$D/2+$y1  a.min=0 a.max=360.0  
+  
+#electrode over drain region  
+#elect name=overdrain z.min=$L/2+$LGD z.max=$L/2+$LGD+$extdd r.min=$D/2+$tox r.max=$D/2+$tox+0.002 a.min=0 a.max=360.0  
+  
+  
+#electrode over source region  
+#elect name=oversource z.min=-$L/2-$LGS-$extss z.max=-$L/2-$LGS r.min=$D/2+$tox r.max=$D/2+$tox+0.002 a.min=0 a.max=360.0  
+   
+  
+#silicon doping  
+doping uniform n.type conc=1e18  z.min=$L/2 z.max=$L/2+$extdd r.min=0 r.max=$D/2 a.min=0 a.max=360.0   
+doping uniform p.type conc=1e17  z.min=-$L/2  z.max=$L/2 r.min=0 r.max=$D/2 a.min=0 a.max=360.0   
+doping uniform n.type conc=1e20  z.min=-$L/2-$extss  z.max=-$L/2 r.min=0 r.max=$D/2 a.min=0 a.max=360.0   
+  
+# contact  
+  
+contact name=gate workfun=4.67  
+#contact name=gate2 workfun=5.1  
+#contact name=overdrain workfun=3.9  
+#contact name=oversource workfun=5.93  
+#contact name=metal  workfun=3.9  
+#contact name=source workfun=4.2  
+#contact name=drain workfun=4.2  
+  
+  
+  
+# Defining the models  
+  
+output con.band val.band band.param   
+  
+#models conmob srh fldmob auger print bgn  bbt.kane a.btbt=3.5e21 b.btbt=7e7 bbt.gamma=2.5  
+models  conmob srh auger bgn fldmob print BBT.KANE bbt.nonlocal   
+  
+  
+# Solving the simulation  
+  
+solve init  
+method gummel newton  maxtrap=10  
+
+
+solve init
+method gummel newton maxtrap=10
+
+
+# ================================
+# Id vs Vds for different Vgs
+# ================================
+
+solve vgate=0.25 name=gate
+log outf=IdVds_0V.log
+solve vdrain=0.0 vstep=0.03 vfinal=1 name=drain
+log off
+
+solve vgate=0.3 name=gate
+log outf=IdVds_02V.log
+solve vdrain=0.0 vstep=0.03 vfinal=1 name=drain
+log off
+
+solve vgate=0.35 name=gate
+log outf=IdVds_04V.log
+solve vdrain=0.0 vstep=0.03 vfinal=1 name=drain
+log off
+
+solve vgate=0.4 name=gate
+log outf=IdVds_06V.log
+solve vdrain=0.0 vstep=0.03 vfinal=1 name=drain
+log off
+
+solve vgate=0.45 name=gate
+log outf=IdVds_08V.log
+solve vdrain=0.0 vstep=0.03 vfinal=1 name=drain
+log off
+
+solve vgate=0.5 name=gate
+log outf=IdVds_10V.log
+solve vdrain=0.0 vstep=0.03 vfinal=1 name=drain
+log off
+
+# Save structure
+
+save outf=IdVds.str
+
+
+# Plot
+
+tonyplot -overlay IdVds_0V.log IdVds_02V.log IdVds_04V.log IdVds_06V.log IdVds_08V.log IdVds_10V.log
+tonyplot3d IdVds.str
+
+quit 
+  
+save    outf=IdVds.str  
+extract init inf="IdVds.log"  
+extract name="vt" (xintercept(maxslope(curve(abs(v."drain"),abs(i."drain"))))  - abs(ave(v."gate"))/2.0)  
+extract name="subvt" 1.0/slope(maxslope(curve(abs(v."drain"),log10(abs(i."drain")))))  
+extract name="Ion"  y.val from curve(abs(v."drain"),abs(i."drain")) where x.val=1  
+extract name="Ioff" y.val from curve(abs(v."drain"),abs(i."drain")) where x.val=0  
+extract name="ratio" ($"Ion"/$"Ioff")  
+  
+#tonyplot dielec.log    
